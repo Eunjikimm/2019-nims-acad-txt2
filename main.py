@@ -1,3 +1,4 @@
 from src import postprocessing
 
-postprocessing.article_2_txt(2015, 1)
+for i in range(1, 13):
+    postprocessing.article_2_txt(2015, i)
