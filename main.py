@@ -36,7 +36,14 @@ for m in range(1, 13):
 
 # for m in range(1, 2):
 # postprocessing.html_2_txt(2014, m)
-result.extend(postprocessing.tokenize(2014, 1))
+
+year = 2014
+month = 1
+postprocessing.tokenize(year, month)
+
+for file in os.listdir(f"./newspaper/txt/newspaper{year}/{year}.{month}/"):
+    with open(f"./newspaper/txt/newspaper{year}/{year}.{month}/" + file, encoding="euc-kr") as f:
+        result.append(f.readline().split(","))
 
 if os.path.exists(f"2019.model"):
     model = Word2Vec.load("2019.model")

@@ -8,9 +8,11 @@ remove = ["서울신문", "페이스북", "글로벌세상", "동영상뉴스", 
           "무단 전재 및 재배포 금지", "서울신문사 무단 전재 및 재배포 금지"]
 
 
-def html_2_txt(year, month):
+def tokenize(year, month):
     if month < 10:
         month = "0" + str(month)
+
+    okt = Okt()
 
     if not os.path.exists(f"./newspaper/txt/newspaper{year}/{year}.{month}"):
         os.makedirs(f"./newspaper/txt/newspaper{year}/{year}.{month}")
@@ -19,35 +21,23 @@ def html_2_txt(year, month):
         with open(f"./newspaper/newspaper{year}/{year}.{month}/" + file, encoding="euc-kr") as f:
             soup = bs(f, 'html.parser')
             article = soup.find("p").get_text()
+            result = []
 
             for r in remove:
                 article.replace(r, "")
 
             article = re.sub('[^ \nㄱ-ㅣ가-힣]+', "", article)
 
+            token = okt.pos(article, stem=True, norm=True)
+            temp = []
+            for word in token:
+                if len(word[0]) > 1:
+                    temp.append(word[0])
+            result.extend(temp)
+
             article_to_txt = f"./newspaper/txt/newspaper{year}/{year}.{month}/" + file.rstrip(".html") + ".txt"
 
             txt = open(article_to_txt, "w")
-            txt.write(article)
+            for noun in result:
+                txt.write(noun + ",")
             txt.close()
-
-
-def tokenize(year, month):
-    if month < 10:
-        month = "0" + str(month)
-    okt = Okt()
-    result = []
-    i = 0
-    for file in glob.glob(f"./newspaper/txt/newspaper{year}/{year}.{month}/*.txt"):
-        print(i)
-        print(file)
-        i += 1
-        f = open(file, "r")
-        token = okt.pos(f.readline(), stem=True, norm=True)
-        temp = []
-        for word in token:
-            if (word[1] == "Noun") and (len(word[0]) > 1):
-                temp.append(word[0])
-        result.append(temp)
-        f.close()
-    return result
